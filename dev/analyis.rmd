@@ -1,0 +1,129 @@
+---
+title: "Pipeline Functions"
+author: "Chris Selig"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Libraries
+
+```{r}
+#Load libraries ----
+library(duckdb)
+library(DBI)
+library(testthat)
+```
+
+# create_con
+
+```{r function-create_connection}
+#' create_con Title
+#' @description This function creates a connection to a local database file on disk.
+#' @return 1
+#' @export
+#' @importFrom DBI dbConnect dbExecute
+#' @importFrom duckdb duckdb
+#' 
+
+create_con <- function() {
+    # Create a database file on disk
+    con <- dbConnect(duckdb(), dbdir = "retro_baseball_stats.db")
+    
+    return(con)
+}
+```
+
+
+# download_create_local_database
+
+```{r function-download_create_local_database}
+#' download_create_local_database Title
+#' @description This function downloads a database file from a remote location and creates a connection to it.
+#' @return 1
+#' @export
+#' @importFrom DBI dbConnect dbExecute
+#' 
+download_create_local_database <- function(con) {
+    # Create a database file on disk
+
+    # Enable remote access
+    dbExecute(con, "INSTALL httpfs")
+    dbExecute(con, "LOAD httpfs")
+    # This ATTACH command only needs to be run once on an existing database and will fail
+    # if run twice, but you can safely ignore the error in that case
+    dbExecute(con, "ATTACH 'https://data.baseball.computer/dbt/bc_remote.db' (READ_ONLY)")
+    dbExecute(con, "USE bc_remote")
+    dbExecute(con, "USE main_models")
+}
+```
+
+```{r tests-download_create_local_database}
+test_that("URL returns a successful response code", {
+    library(httr)
+  
+    url <- "https://data.baseball.computer/dbt/bc_remote.db"  # Replace with your URL
+  
+    # Make the HTTP request
+    response <- httr::GET(url)
+    
+    # Check if the response code is 200 (OK)
+    expect_equal(httr::http_status(response)$category, "Success")
+})
+```
+
+# fetch_player_stats
+
+```{r function-fetch_player_stats}
+#' fetch_player_stats Title
+#'
+#' @return 1
+#' @export
+#'
+
+fetch_player_stats <- function(con, table_name, columns) {
+  # Construct the SQL query
+  query <- sprintf(
+    "SELECT %s FROM %s",
+    paste(columns, collapse = ", "),
+    table_name
+  )
+  
+  # Execute the query
+  data <- dbGetQuery(con, query)
+  return(data)
+}
+```
+
+```{r}
+# offensive_columns <- c(
+#     "player_id", "plate_appearances", "at_bats", "hits", "singles", 
+#     "doubles", "triples", "home_runs", "total_bases", "strikeouts", 
+#     "walks", "intentional_walks", "hit_by_pitches", "sacrifice_hits", 
+#     "sacrifice_flies", "reached_on_errors", "reached_on_interferences", 
+#     "inside_the_park_home_runs", "infield_hits", "on_base_opportunities", 
+#     "on_base_successes", "runs_batted_in", "grounded_into_double_plays", 
+#     "batting_outs", "balls_in_play", "balls_batted", "bunts", "runs", 
+#     "times_reached_base", "stolen_bases", "caught_stealing", "picked_off", 
+#     "picked_off_caught_stealing", "outs_on_basepaths", "pitches", "swings", 
+#     "swings_with_contact", "left_on_base", "left_on_base_with_two_outs", 
+#     "batting_average", "on_base_percentage", "slugging_percentage", 
+#     "on_base_plus_slugging", "isolated_power", "home_run_rate", "walk_rate", 
+#     "strikeout_rate", "stolen_base_percentage", "fly_ball_rate", 
+#     "line_drive_rate", "pop_up_rate", "ground_ball_rate", 
+#     "coverage_weighted_air_ball_batting_average", 
+#     "coverage_weighted_ground_ball_batting_average", 
+#     "coverage_weighted_fly_ball_batting_average", 
+#     "coverage_weighted_line_drive_batting_average", 
+#     "coverage_weighted_pop_up_batting_average", "pulled_rate_outs", 
+#     "pulled_rate_hits", "pulled_rate", "opposite_field_rate_outs", 
+#     "opposite_field_rate_hits", "opposite_field_rate"
+#   )
+
+```
+
+
+

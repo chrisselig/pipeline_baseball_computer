@@ -1,0 +1,6 @@
+^LICENSE\.md$
+^README\.Rmd$
+^CODE_OF_CONDUCT\.md$
+dev/
+^pipeline_baseball_computer\.Rproj$
+^\.Rproj\.user$

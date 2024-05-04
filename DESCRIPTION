@@ -1,0 +1,25 @@
+Package: pipeline.baseball.computer
+Title: Package To Automatically Retrieve Updated Data From Baseball
+    Computer
+Version: 0.0.0.9000
+Authors@R: 
+    person("Chris", "Selig", , "chris.selig@bidamia.ca", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0000-0000-0000"))
+Description: Package retrieves data on a monthly basis from
+    https://baseball.computer/ . Data than is cleaned and transformed and
+    uploaded to a Motherduck database.
+License: MIT + file LICENSE
+Imports: 
+    DBI,
+    duckdb
+Suggests: 
+    httr,
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Config/fusen/version: 0.5.2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3

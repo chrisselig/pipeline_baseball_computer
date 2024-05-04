@@ -1,0 +1,110 @@
+---
+title: "flat_minimal_package.Rmd empty"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+```
+
+<!--
+ You need to run the 'description' chunk in the '0-dev_history.Rmd' file before continuing your code there.
+-->
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+# create_con
+
+```{r function-create_connection}
+#' create_con Title
+#' @description This function creates a connection to a local database file on disk.
+#' @return 1
+#' @export
+#' @importFrom DBI dbConnect dbExecute
+#' @importFrom duckdb duckdb
+#' 
+
+create_con <- function() {
+    # Create a database file on disk
+    con <- dbConnect(duckdb(), dbdir = "retro_baseball_stats.db")
+    
+    return(con)
+}
+```
+
+
+# download_create_local_database
+
+```{r function-download_create_local_database}
+#' download_create_local_database Title
+#' @description This function downloads a database file from a remote location and creates a connection to it.
+#' @param con A database connection object.
+#' @return 1
+#' @export
+#' @importFrom DBI dbConnect dbExecute
+#' 
+download_create_local_database <- function(con) {
+    # Create a database file on disk
+
+    # Enable remote access
+    dbExecute(con, "INSTALL httpfs")
+    dbExecute(con, "LOAD httpfs")
+    # This ATTACH command only needs to be run once on an existing database and will fail
+    # if run twice, but you can safely ignore the error in that case
+    dbExecute(con, "ATTACH 'https://data.baseball.computer/dbt/bc_remote.db' (READ_ONLY)")
+    dbExecute(con, "USE bc_remote")
+    dbExecute(con, "USE main_models")
+}
+```
+
+```{r tests-download_create_local_database}
+test_that("URL returns a successful response code", {
+    library(httr)
+  
+    url <- "https://data.baseball.computer/dbt/bc_remote.db"  # Replace with your URL
+  
+    # Make the HTTP request
+    response <- httr::GET(url)
+    
+    # Check if the response code is 200 (OK)
+    expect_equal(httr::http_status(response)$category, "Success")
+})
+```
+
+# fetch_player_stats
+
+```{r function-fetch_player_stats}
+#' fetch_player_stats Title
+#' @description This function fetches player statistics from a database table.
+#' @param con A database connection object.
+#' @param table_name The name of the table to fetch data from.
+#' @param columns A character vector of column names to fetch.
+#' @return 1
+#' @export
+#'
+
+fetch_player_stats <- function(con, table_name, columns) {
+  # Construct the SQL query
+  query <- sprintf(
+    "SELECT %s FROM %s",
+    paste(columns, collapse = ", "),
+    table_name
+  )
+  
+  # Execute the query
+  data <- dbGetQuery(con, query)
+  return(data)
+}
+```
+
+
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_minimal_package.Rmd", vignette_name = "Minimal")
+```

@@ -1,0 +1,16 @@
+flat_minimal_package.Rmd:
+  path: dev/flat_minimal_package.Rmd
+  state: active
+  R:
+  - R/create_con.R
+  - R/download_create_local_database.R
+  - R/fetch_player_stats.R
+  tests: tests/testthat/test-download_create_local_database.R
+  vignettes: vignettes/minimal.Rmd
+  inflate:
+    flat_file: dev/flat_minimal_package.Rmd
+    vignette_name: Minimal
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
