@@ -102,6 +102,26 @@ fetch_player_stats <- function(con, table_name, columns) {
 }
 ```
 
+# write_to_motherduck
+
+```{r function-write_to_motherduck}
+
+#' write_to_motherduck Title
+#' @description This function writes data to a remote database.
+#' @param player_data A data frame containing player data.
+#' @param table The name of the table to write data to.
+#' @param overwrite A logical value indicating whether to overwrite the existing table. Default is TRUE.
+write_to_motherduck <- function(player_data,table, overwrite = TRUE){
+    
+    con <- DBI::dbConnect(duckdb(),paste0('md:baseball?motherduck_token=', Sys.getenv("bidamia_motherduck_token")))
+    
+    dbWriteTable(con, table, player_data, overwrite = overwrite)
+    
+    DBI::dbDisconnect(motherduck_con,shutdown = TRUE)
+}
+
+```
+
 
 ```{r development-inflate, eval=FALSE}
 # Run but keep eval=FALSE to avoid infinite loop
